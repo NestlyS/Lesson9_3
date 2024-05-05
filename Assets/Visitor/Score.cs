@@ -1,21 +1,22 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Visitor
 {
     public class Score: IDisposable
     {
-        public int Value => _enemyVisitor.Score;
+        public int Value => _enemyVisitor.Value;
 
         private IEnemyDeathNotifier _enemyDeathNotifier;
         private EnemyVisitor _enemyVisitor;
 
-        public Score(IEnemyDeathNotifier enemyDeathNotifier)
+        public Score(IEnemyDeathNotifier enemyDeathNotifier, Dictionary<EnemyType, int> statConfig)
         {
             _enemyDeathNotifier = enemyDeathNotifier;
             _enemyDeathNotifier.Notified += OnEnenmyKilled;
 
-            _enemyVisitor = new EnemyVisitor();
+            _enemyVisitor = new EnemyVisitor(statConfig);
         }
 
         public void OnEnenmyKilled(Enemy enemy)
@@ -27,21 +28,6 @@ namespace Assets.Visitor
         public void Dispose()
         {
             _enemyDeathNotifier.Notified -= OnEnenmyKilled;
-        }
-
-        private class EnemyVisitor : IEnemyVisitor
-        {
-            public int Score { get; private set; }
-
-            public void Visit(Elf elf) => Score += 10;
-
-            public void Visit(Human human) => Score += 5;
-
-            public void Visit(Ork ork) => Score += 20;
-
-            public void Visit(Robot robot) => Score += 15;
-
-            public void Visit(Enemy enemy) => Visit((dynamic) enemy);
         }
     }
 }
